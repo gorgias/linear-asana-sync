@@ -1,0 +1,5 @@
+Flask==1.1.2
+asana==0.10.3
+ptvsd==4.3.2 # Required for debugging.
+python-dotenv==0.17.0
+requests==2.25.1

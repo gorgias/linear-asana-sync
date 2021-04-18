@@ -1,0 +1,4 @@
+gcp_project_id = ""
+container_image = ""
+linear_personal_token = ""
+asana_personal_token = ""

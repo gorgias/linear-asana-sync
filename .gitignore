@@ -1,0 +1,40 @@
+.env
+.terraform
+service-account.json
+terraform.tfvars
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+
+.DS_Store
+.bash_history
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+./env/
+./build/
+./develop-eggs/
+./dist/
+./downloads/
+./eggs/
+.eggs/
+./lib/
+./lib64/
+./parts/
+./sdist/
+./var/
+*.egg-info/
+.installed.cfg
+*.egg
+.virtualenvs
+venv
+.local/share/
+
+# editors
+.idea
