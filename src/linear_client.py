@@ -28,7 +28,9 @@ class LinearClient:
         response.raise_for_status()
         return response.json()["data"]["milestones"]["nodes"]
 
-    def projects_by_milestone(self, milestone_id: str) -> Generator[LinearProject, None, None]:
+    def projects_by_milestone(
+        self, milestone_id: str
+    ) -> Generator[LinearProject, None, None]:
         """Get all projects and top-level issues of a milestone"""
 
         response = self.session.post(
@@ -39,14 +41,17 @@ class LinearClient:
                     milestone(id: "%s") {
                         projects{nodes{id}}
                     }
-                }""" % milestone_id
+                }"""
+                % milestone_id
             },
         )
         if not response.ok:
             print(response.content)
             response.raise_for_status()
 
-        project_ids = [p['id'] for p in response.json()["data"]["milestone"]["projects"]["nodes"]]
+        project_ids = [
+            p["id"] for p in response.json()["data"]["milestone"]["projects"]["nodes"]
+        ]
 
         for project_id in project_ids:
             response = self.session.post(
@@ -101,11 +106,12 @@ project(id: "%s") {
       }
     }
   }
-}}""" % project_id
+}}"""
+                    % project_id
                 },
             )
             if not response.ok:
                 print(response.content)
                 response.raise_for_status()
 
-            yield response.json()['data']['project']
+            yield response.json()["data"]["project"]
