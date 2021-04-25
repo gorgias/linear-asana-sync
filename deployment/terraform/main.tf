@@ -9,7 +9,13 @@ resource "google_cloud_run_service" "default" {
   location = var.gcp_region
 
   template {
+    metadata {
+      annotations = {
+        "autoscaling.knative.dev/maxScale" = "1"
+      }
+    }
     spec {
+      timeout_seconds = 900
       containers {
         image = var.container_image
         env {
@@ -21,6 +27,12 @@ resource "google_cloud_run_service" "default" {
           value = var.asana_personal_token
         }
       }
+    }
+  }
+
+  metadata {
+    annotations = {
+      "autoscaling.knative.dev/maxScale" = "1"
     }
   }
 
@@ -56,7 +68,7 @@ resource "google_cloud_scheduler_job" "job" {
   description = "Triggers a Linear to Asana data sync"
   schedule = "0 * * * *"
   time_zone = "America/New_York"
-  attempt_deadline = "1800s"
+  attempt_deadline = "1000s"
 
   http_target {
     http_method = "GET"
