@@ -19,26 +19,26 @@ def sync_asana_projects(milestone_name: str):
         filter(lambda m: m["name"] == milestone_name, linear_milestones)
     )["id"]
     linear_projects = linear_client.projects_by_milestone(linear_milestone_id)
+    asana_projects_by_linear_url = asana_client.projects_in_portfolio_by_custom_field(
+        asana_portfolio_gid,
+        custom_field_gid=current_app.config["ASANA_PROJECTS_CUSTOM_FIELDS"][
+            AsanaCustomFieldLabels.LINEAR_URL
+        ],
+    )
 
     for linear_project in linear_projects:
-        # only interested in eng teams - a project can have only 1 team anyway, not sure why linear has a list of teams
-        linear_project["team"] = next(
-            filter(
-                lambda t: t["id"] in current_app.config["LINEAR_ENGINEERING_TEAMS"],
-                linear_project["teams"]["nodes"],
+        existing_asana_project = None
+        for (
+            linear_project_url,
+            asana_project_item,
+        ) in asana_projects_by_linear_url.items():
+            if linear_project["slugId"] in linear_project_url:
+                existing_asana_project = asana_project_item
+                break
+
+        if not existing_asana_project:
+            existing_asana_project = asana_client.create_project(
+                linear_project, milestone_name
             )
-        )
 
-        # search Asana for a project that has a linear project slugId in it's URL
-        asana_project = asana_client.find_project_in_portfolio(
-            asana_portfolio_gid,
-            custom_field_gid=current_app.config["ASANA_PROJECTS_CUSTOM_FIELDS"][
-                AsanaCustomFieldLabels.LINEAR_URL
-            ],
-            custom_field_value=linear_project["slugId"],
-        )
-
-        if not asana_project:
-            asana_project = asana_client.create_project(linear_project, milestone_name)
-
-        asana_client.update_project(asana_project, linear_project)
+        asana_client.update_project(existing_asana_project, linear_project)

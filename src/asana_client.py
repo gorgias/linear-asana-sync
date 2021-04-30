@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 import asana
 from flask import current_app
@@ -23,16 +23,20 @@ class AsanaClient:
         self.asana_users = self.users()
 
     def users(self) -> List[AsanaUser]:
+        current_app.logger.debug(f"fetching users")
         users = self.client.users.get_users(
             {"workspace": self.workspace_id}, opt_fields=["gid", "email"]
         )
         return list(users)
 
-    def find_project_in_portfolio(
-        self, portfolio_gid: str, custom_field_gid: str, custom_field_value: str
-    ) -> Optional[str]:
-        """Search projects in portfolio """
+    def projects_in_portfolio_by_custom_field(
+        self, portfolio_gid: str, custom_field_gid: str
+    ) -> Dict[str, AsanaProject]:
+        """Get all projects in portfolio with a Linear URL custom field"""
 
+        projects = {}
+
+        current_app.logger.debug(f"getting projects in portfolio {portfolio_gid}")
         items = self.client.portfolios.get_items_for_portfolio(
             portfolio_gid, opt_fields=["gid", "name", "resource_type", "custom_fields"]
         )
@@ -42,13 +46,15 @@ class AsanaClient:
                 continue
 
             for custom_field in item["custom_fields"]:
-                if custom_field["gid"] != custom_field_gid:
-                    continue
-                if (
-                    custom_field["text_value"]
-                    and custom_field_value in custom_field["text_value"]
+                if not (
+                    custom_field["gid"] == custom_field_gid
+                    and custom_field["text_value"]
                 ):
-                    return self.client.projects.get_project(item["gid"])
+                    continue
+
+                projects[custom_field["text_value"]] = item
+                break
+        return projects
 
     def create_project(
         self, linear_project: LinearProject, milestone_name: str
@@ -70,11 +76,13 @@ class AsanaClient:
             "team": current_app.config["ASANA_ENGINEERING_TEAMS"][team_name],
         }
 
+        current_app.logger.debug(f"creating project {asana_project['name']}")
         asana_project = self.client.projects.create_project(asana_project)
 
         # We can only add certain fields (ex: a custom field) to the project once it was added to the portfolio
 
         # add project to portfolio
+        current_app.logger.debug(f"adding item to portfolio {milestone_name}")
         self.client.portfolios.add_item_for_portfolio(
             current_app.config["LINEAR_MILESTONE_ASANA_PORTFOLIO"][milestone_name],
             {"item": asana_project["gid"]},
@@ -84,6 +92,9 @@ class AsanaClient:
         for custom_field_label, custom_field_id in current_app.config[
             "ASANA_TASKS_CUSTOM_FIELDS"
         ].items():
+            current_app.logger.debug(
+                f"adding custom field to project {custom_field_label}"
+            )
             self.client.projects.add_custom_field_setting_for_project(
                 asana_project["gid"], {"custom_field": custom_field_id}
             )
@@ -100,11 +111,13 @@ class AsanaClient:
                 ]: current_app.config["ASANA_CUSTOM_FIELD_TEAM_ENUM_VALUES"][team_name],
             }
         }
+        current_app.logger.debug(f"updating project {asana_project['name']}")
         self.client.projects.update_project(asana_project["gid"], asana_project_update)
 
-        print(f"Asana project created: {linear_project['name']}")
+        current_app.logger.info(f"Asana project created: {asana_project['name']}")
 
         # fetch the project again with the latest fields
+        current_app.logger.debug(f"re-fetching project: {asana_project['name']}")
         return self.client.projects.get_project(asana_project["gid"])
 
     def update_project(
@@ -125,6 +138,9 @@ class AsanaClient:
                     if linear_project_member["email"] == asana_user["email"]:
                         followers.add(asana_user["gid"])
         if followers:
+            current_app.logger.debug(
+                f"adding followers to project {asana_project['name']}"
+            )
             self.client.projects.add_followers_for_project(
                 asana_project["gid"], {"followers": ",".join(followers)}
             )
@@ -132,12 +148,10 @@ class AsanaClient:
         if linear_project["targetDate"]:
             asana_project_update["due_on"] = linear_project["targetDate"]
 
+        current_app.logger.debug(f"updating project")
         self.client.projects.update_project(asana_project["gid"], asana_project_update)
 
-        print(f"Asana project updated: {linear_project['name']}")
-
-        # fetch the project again with the latest fields
-        asana_project = self.client.projects.get_project(asana_project["gid"])
+        current_app.logger.info(f"Asana project updated: {asana_project['name']}")
 
         self.sync_tasks(linear_project, asana_project["gid"])
 
@@ -153,6 +167,7 @@ class AsanaClient:
             "projects": [asana_project_gid],
             "workspace": self.workspace_id,
         }
+        current_app.logger.debug(f"creating task")
         return self.client.tasks.create_task(asana_task)
 
     def _update_task(
@@ -192,6 +207,7 @@ class AsanaClient:
                     if asana_user["email"] == linear_user["email"]:
                         followers.add(asana_user["gid"])
 
+        current_app.logger.debug(f"updating task {existing_asana_task['gid']}")
         self.client.tasks.update_task(existing_asana_task["gid"], asana_task)
 
         # followers
@@ -220,6 +236,7 @@ class AsanaClient:
 
         asana_task_fields = ["gid", "followers", "custom_fields", "completed"]
 
+        current_app.logger.debug(f"fetching project tasks {linear_project['name']}")
         existing_asana_tasks = self.client.tasks.get_tasks_for_project(
             asana_project_gid, opt_fields=asana_task_fields
         )
@@ -245,9 +262,7 @@ class AsanaClient:
             }
             if not existing_asana_task:
                 existing_asana_task = self._create_task(asana_project_gid, linear_issue)
-                print(f"Asana task created: {linear_issue['identifier']}")
-
-            existing_asana_task = self.client.tasks.get_task(
-                existing_asana_task["gid"], opt_fields=asana_task_fields
-            )
+                current_app.logger.info(
+                    f"Asana task created: {linear_issue['identifier']}"
+                )
             self._update_task(existing_asana_task, linear_issue, custom_fields)

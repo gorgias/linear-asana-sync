@@ -22,6 +22,7 @@ class LinearClient:
         return response.json()
 
     def milestones(self) -> List[LinearMilestone]:
+        current_app.logger.debug("fetching milestones")
         response = self.session.post(
             LINEAR_GRAPHQL_ENDPOINT, json={"query": "{milestones{nodes{id name}}}"}
         )
@@ -33,6 +34,7 @@ class LinearClient:
     ) -> Generator[LinearProject, None, None]:
         """Get all projects and top-level issues of a milestone"""
 
+        current_app.logger.debug("fetching milestone projects")
         response = self.session.post(
             LINEAR_GRAPHQL_ENDPOINT,
             json={
@@ -46,7 +48,7 @@ class LinearClient:
             },
         )
         if not response.ok:
-            print(response.content)
+            current_app.logger.error(response.content)
             response.raise_for_status()
 
         project_ids = [
@@ -54,6 +56,7 @@ class LinearClient:
         ]
 
         for project_id in project_ids:
+            current_app.logger.debug(f"fetching project {project_id}")
             response = self.session.post(
                 LINEAR_GRAPHQL_ENDPOINT,
                 json={
@@ -111,7 +114,17 @@ project(id: "%s") {
                 },
             )
             if not response.ok:
-                print(response.content)
+                current_app.logger.error(response.content)
                 response.raise_for_status()
 
-            yield response.json()["data"]["project"]
+            project = response.json()["data"]["project"]
+            # only interested in some teams - a project can have only 1 team anyway
+            project["team"] = next(
+                filter(
+                    lambda t: t["id"] in current_app.config["LINEAR_ENGINEERING_TEAMS"],
+                    project["teams"]["nodes"],
+                )
+            )
+
+            if project["team"]:
+                yield project
