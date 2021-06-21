@@ -8,7 +8,7 @@ class Teams(str, Enum):
     AUTOMATIONS = "Automations"
     CORE = "Core"
     DATA = "Data"
-    DEVELOPER_EXPERIENCE = "Developer Experience"
+    DEVELOPER_RELATIONS = "Developer Relations"
     INTEGRATIONS = "Integrations"
     SRE = "SRE"
     SELF_SERVE = "Self-Serve"
