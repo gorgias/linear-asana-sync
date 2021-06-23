@@ -1,6 +1,7 @@
 from typing import Optional, List, Dict
 
 import asana
+from asana.error import ForbiddenError
 from flask import current_app
 
 from src.constants import AsanaCustomFieldLabels, AsanaResourceType
@@ -30,7 +31,7 @@ class AsanaClient:
         return list(users)
 
     def projects_in_portfolio_by_custom_field(
-        self, portfolio_gid: str, custom_field_gid: str
+            self, portfolio_gid: str, custom_field_gid: str
     ) -> Dict[str, AsanaProject]:
         """Get all projects in portfolio with a Linear URL custom field"""
 
@@ -47,8 +48,8 @@ class AsanaClient:
 
             for custom_field in item["custom_fields"]:
                 if not (
-                    custom_field["gid"] == custom_field_gid
-                    and custom_field["text_value"]
+                        custom_field["gid"] == custom_field_gid
+                        and custom_field["text_value"]
                 ):
                     continue
 
@@ -57,7 +58,7 @@ class AsanaClient:
         return projects
 
     def create_project(
-        self, linear_project: LinearProject, milestone_name: str
+            self, linear_project: LinearProject, milestone_name: str
     ) -> AsanaProject:
         """Create Asana project from linear project values"""
 
@@ -121,7 +122,7 @@ class AsanaClient:
         return self.client.projects.get_project(asana_project["gid"])
 
     def update_project(
-        self, asana_project: AsanaProject, linear_project: LinearProject
+            self, asana_project: AsanaProject, linear_project: LinearProject
     ):
 
         asana_project_update: AsanaProject = {}  # noqa
@@ -129,8 +130,8 @@ class AsanaClient:
         followers = set()
         for asana_user in self.asana_users:
             if (
-                linear_project["lead"]
-                and asana_user["email"] == linear_project["lead"]["email"]
+                    linear_project["lead"]
+                    and asana_user["email"] == linear_project["lead"]["email"]
             ):
                 asana_project_update["owner"] = asana_user["gid"]
             if linear_project["members"]:
@@ -141,9 +142,12 @@ class AsanaClient:
             current_app.logger.debug(
                 f"adding followers to project {asana_project['name']}"
             )
-            self.client.projects.add_followers_for_project(
-                asana_project["gid"], {"followers": ",".join(followers)}
-            )
+            try:
+                self.client.projects.add_followers_for_project(
+                    asana_project["gid"], {"followers": ",".join(followers)}
+                )
+            except ForbiddenError:
+                current_app.logger.error(f"Failed to add followers: {followers}")
 
         if linear_project["targetDate"]:
             asana_project_update["due_on"] = linear_project["targetDate"]
@@ -156,7 +160,7 @@ class AsanaClient:
         self.sync_tasks(linear_project, asana_project["gid"])
 
     def _create_task(
-        self, asana_project_gid: str, linear_issue: LinearIssue
+            self, asana_project_gid: str, linear_issue: LinearIssue
     ) -> AsanaTask:
         asana_task: AsanaTask = {  # noqa
             "assignee": None,
@@ -171,10 +175,10 @@ class AsanaClient:
         return self.client.tasks.create_task(asana_task)
 
     def _update_task(
-        self,
-        existing_asana_task: AsanaTask,
-        linear_issue: LinearIssue,
-        custom_fields: AsanaCustomFields,
+            self,
+            existing_asana_task: AsanaTask,
+            linear_issue: LinearIssue,
+            custom_fields: AsanaCustomFields,
     ):
         asana_task: AsanaTask = {  # noqa
             "assignee": None,
@@ -187,9 +191,9 @@ class AsanaClient:
 
         # set task completion
         if (
-            linear_issue["completedAt"]
-            or linear_issue["canceledAt"]
-            or linear_issue["archivedAt"]
+                linear_issue["completedAt"]
+                or linear_issue["canceledAt"]
+                or linear_issue["archivedAt"]
         ):
             asana_task["completed"] = True
 
@@ -198,8 +202,8 @@ class AsanaClient:
         # set asana assignee if we have one in Linear
         for asana_user in self.asana_users:
             if (
-                linear_issue["assignee"]
-                and asana_user["email"] == linear_issue["assignee"]["email"]
+                    linear_issue["assignee"]
+                    and asana_user["email"] == linear_issue["assignee"]["email"]
             ):
                 asana_task["assignee"] = asana_user["gid"]
             if linear_issue["subscribers"]:

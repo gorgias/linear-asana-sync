@@ -7,7 +7,7 @@ sync_commands = AppGroup("sync", help="Sync commands.")
 
 
 @sync_commands.command("asana-projects")
-@click.argument("milestone_name", default="Q2 2021")
+@click.argument("milestone_name", default="Q3 2021")
 def asana_projects(milestone_name: str):
     """Create Asana projects from Linear projects"""
 
