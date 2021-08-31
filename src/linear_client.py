@@ -41,22 +41,33 @@ class LinearClient:
                 "query": """
                 {
                     milestone(id: "%s") {
-                        projects{nodes{id}}
+                        projects(first: 150){nodes{id,url,teams{nodes{id}}}}
                     }
                 }"""
                 % milestone_id
             },
         )
+
         if not response.ok:
             current_app.logger.error(response.content)
             response.raise_for_status()
 
-        project_ids = [
-            p["id"] for p in response.json()["data"]["milestone"]["projects"]["nodes"]
-        ]
+        linear_projects = {
+            p["id"]: p
+            for p in response.json()["data"]["milestone"]["projects"]["nodes"]
+        }
 
-        for project_id in project_ids:
-            current_app.logger.debug(f"fetching project {project_id}")
+        for project_id, project_props in linear_projects.items():
+            # only fetch project details of teams that we're interested in
+            team_ids = [
+                t["id"]
+                for t in project_props["teams"]["nodes"]
+                if t["id"] in current_app.config["LINEAR_ENGINEERING_TEAMS"]
+            ]
+            if not team_ids:
+                continue
+
+            current_app.logger.debug(f"fetching project {project_props['url']}")
             response = self.session.post(
                 LINEAR_GRAPHQL_ENDPOINT,
                 json={
@@ -87,7 +98,7 @@ project(id: "%s") {
       id
     }
   }
-  issues {
+  issues(first:100) {
     nodes {
       identifier
       title
