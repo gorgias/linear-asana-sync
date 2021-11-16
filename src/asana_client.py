@@ -65,7 +65,7 @@ class AsanaClient:
         linear_project_url = (
             f"https://linear.app/gorgias/project/{linear_project['slugId']}"
         )
-        team_name = current_app.config["LINEAR_ENGINEERING_TEAMS"][
+        team_name = current_app.config["LINEAR_TEAMS"][
             linear_project["team"]["id"]
         ]
 

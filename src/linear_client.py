@@ -14,7 +14,7 @@ class LinearClient:
             {"Authorization": current_app.config["LINEAR_PERSONAL_TOKEN"]}
         )
 
-    def engineering_teams(self):
+    def teams(self):
         response = self.session.post(
             LINEAR_GRAPHQL_ENDPOINT, json={"query": "{teams{nodes{id name}}}"}
         )
@@ -62,7 +62,7 @@ class LinearClient:
             team_ids = [
                 t["id"]
                 for t in project_props["teams"]["nodes"]
-                if t["id"] in current_app.config["LINEAR_ENGINEERING_TEAMS"]
+                if t["id"] in current_app.config["LINEAR_TEAMS"]
             ]
             if not team_ids:
                 continue
@@ -132,7 +132,7 @@ project(id: "%s") {
             # only interested in some teams - a project can have only 1 team anyway
             project["team"] = next(
                 filter(
-                    lambda t: t["id"] in current_app.config["LINEAR_ENGINEERING_TEAMS"],
+                    lambda t: t["id"] in current_app.config["LINEAR_TEAMS"],
                     project["teams"]["nodes"],
                 )
             )
