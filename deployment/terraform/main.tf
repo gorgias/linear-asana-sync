@@ -33,6 +33,7 @@ resource "google_cloud_run_service" "default" {
   metadata {
     annotations = {
       "autoscaling.knative.dev/maxScale" = "1"
+      "run.googleapis.com/ingress" = "all"
     }
   }
 
@@ -68,7 +69,7 @@ resource "google_cloud_scheduler_job" "job" {
   description = "Triggers a Linear to Asana data sync"
   schedule = "0 * * * *"
   time_zone = "America/New_York"
-  attempt_deadline = "3600s"
+  attempt_deadline = "1800s"
 
   http_target {
     http_method = "GET"
