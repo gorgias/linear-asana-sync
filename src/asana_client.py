@@ -74,7 +74,7 @@ class AsanaClient:
             "notes": f"""Linear URL: {linear_project_url} 
 
 {linear_project["description"]}""",
-            "team": current_app.config["ASANA_ENGINEERING_TEAMS"][team_name],
+            "team": current_app.config["ASANA_TEAMS"][team_name],
         }
 
         current_app.logger.debug(f"creating project {asana_project['name']}")

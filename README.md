@@ -10,3 +10,16 @@ It's a one-way sync from Linear to Asana.
 | Project | Project|
 | Issue | Task |
 
+
+### Testing locally
+
+Create a virtual environment:
+
+    
+    python3 -m venv ./venv
+    source ./venv/bin/activate
+    pip install -r requirements.txt
+
+Run the sync:
+
+    flask sync asana-projects
