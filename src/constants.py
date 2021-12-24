@@ -1,4 +1,4 @@
-from enum import unique, Enum
+from enum import Enum, unique
 
 LINEAR_GRAPHQL_ENDPOINT = "https://api.linear.app/graphql"
 

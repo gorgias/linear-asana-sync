@@ -1,6 +1,6 @@
 import os
 
-from src.constants import Teams, AsanaCustomFieldLabels
+from src.constants import AsanaCustomFieldLabels, Teams
 
 ASANA_PERSONAL_TOKEN = os.environ["ASANA_PERSONAL_TOKEN"]
 ASANA_WORKSPACE_ID = "488965188402817"

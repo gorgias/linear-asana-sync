@@ -1,4 +1,4 @@
-from typing import TypedDict, List, Dict, Optional
+from typing import Dict, List, Optional, TypedDict
 
 
 class LinearUser(TypedDict):

@@ -25,11 +25,11 @@ def asana_team_ids(custom_field_id: str):
     """Fetch all values of the custom field"""
 
     if not custom_field_id:
-        custom_field_id = current_app.config['ASANA_PROJECTS_CUSTOM_FIELDS'][AsanaCustomFieldLabels.TEAM]
+        custom_field_id = current_app.config["ASANA_PROJECTS_CUSTOM_FIELDS"][AsanaCustomFieldLabels.TEAM]
 
     asana_client = AsanaClient(current_app.config["ASANA_WORKSPACE_ID"])
     response = asana_client.client.custom_fields.get_custom_field(custom_field_id)
-    for options in response['enum_options']:
+    for options in response["enum_options"]:
         print(f"{options['gid']}: {options['name']}")
 
 
@@ -39,5 +39,5 @@ def linear_team_ids():
 
     linear_client = LinearClient()
     teams = linear_client.teams()
-    for team in teams['data']['teams']['nodes']:
+    for team in teams["data"]["teams"]["nodes"]:
         print(f"{team['id']}: {team['name']}")

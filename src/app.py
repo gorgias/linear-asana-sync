@@ -1,6 +1,6 @@
 from flask import Flask
 
-from src.commands import sync_commands, info_commands
+from src.commands import info_commands, sync_commands
 from src.views import default_blueprint
 
 
