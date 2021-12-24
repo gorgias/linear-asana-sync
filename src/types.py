@@ -96,3 +96,9 @@ class AsanaProject(TypedDict):
     owner: str
     followers: str
     due_on: Optional[str]
+
+
+class AsanaPortfolio(TypedDict):
+    gid: str
+    name: str
+    resource_type: str
