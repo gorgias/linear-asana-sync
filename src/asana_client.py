@@ -46,6 +46,8 @@ class AsanaClient:
 
     def create_tribes_portfolios(self, parent_portfolio: str, asana_tribes_templates) -> List[AsanaPortfolio]:
         current_app.logger.info(f"creating tribes portfolios from templates")
+        current_app.logger.debug(f"items in asana_tribes_templates: {asana_tribes_templates}")
+
         items_in_parent_portfolio = list(self.client.portfolios.get_items_for_portfolio(parent_portfolio))
         current_app.logger.debug(f"items in parent portfolio: {items_in_parent_portfolio}")
         pattern = "\[.*?\]"
