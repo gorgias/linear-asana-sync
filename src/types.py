@@ -1,4 +1,4 @@
-from typing import TypedDict, List, Dict, Optional
+from typing import Dict, List, Optional, TypedDict
 
 
 class LinearUser(TypedDict):
@@ -96,3 +96,9 @@ class AsanaProject(TypedDict):
     owner: str
     followers: str
     due_on: Optional[str]
+
+
+class AsanaPortfolio(TypedDict):
+    gid: str
+    name: str
+    resource_type: str

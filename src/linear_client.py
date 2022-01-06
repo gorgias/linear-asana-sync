@@ -1,4 +1,4 @@
-from typing import List, Generator
+from typing import Generator, List
 
 import requests
 from flask import current_app
@@ -10,28 +10,20 @@ from src.types import LinearMilestone, LinearProject
 class LinearClient:
     def __init__(self):
         self.session = requests.Session()
-        self.session.headers.update(
-            {"Authorization": current_app.config["LINEAR_PERSONAL_TOKEN"]}
-        )
+        self.session.headers.update({"Authorization": current_app.config["LINEAR_PERSONAL_TOKEN"]})
 
     def teams(self):
-        response = self.session.post(
-            LINEAR_GRAPHQL_ENDPOINT, json={"query": "{teams{nodes{id name}}}"}
-        )
+        response = self.session.post(LINEAR_GRAPHQL_ENDPOINT, json={"query": "{teams{nodes{id name}}}"})
         response.raise_for_status()
         return response.json()
 
     def milestones(self) -> List[LinearMilestone]:
         current_app.logger.debug("fetching milestones")
-        response = self.session.post(
-            LINEAR_GRAPHQL_ENDPOINT, json={"query": "{milestones{nodes{id name}}}"}
-        )
+        response = self.session.post(LINEAR_GRAPHQL_ENDPOINT, json={"query": "{milestones{nodes{id name}}}"})
         response.raise_for_status()
         return response.json()["data"]["milestones"]["nodes"]
 
-    def projects_by_milestone(
-        self, milestone_id: str
-    ) -> Generator[LinearProject, None, None]:
+    def projects_by_milestone(self, milestone_id: str) -> Generator[LinearProject, None, None]:
         """Get all projects and top-level issues of a milestone"""
 
         current_app.logger.debug("fetching milestone projects")
@@ -52,17 +44,12 @@ class LinearClient:
             current_app.logger.error(response.content)
             response.raise_for_status()
 
-        linear_projects = {
-            p["id"]: p
-            for p in response.json()["data"]["milestone"]["projects"]["nodes"]
-        }
+        linear_projects = {p["id"]: p for p in response.json()["data"]["milestone"]["projects"]["nodes"]}
 
         for project_id, project_props in linear_projects.items():
             # only fetch project details of teams that we're interested in
             team_ids = [
-                t["id"]
-                for t in project_props["teams"]["nodes"]
-                if t["id"] in current_app.config["LINEAR_TEAMS"]
+                t["id"] for t in project_props["teams"]["nodes"] if t["id"] in current_app.config["LINEAR_TEAMS"]
             ]
             if not team_ids:
                 continue
