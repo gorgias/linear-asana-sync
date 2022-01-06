@@ -22,4 +22,8 @@ Create a virtual environment:
 
 Run the sync:
 
-    flask sync asana-projects
+    flask sync asana-projects "Q1 2022"
+
+Create milestone portfolio:
+
+    flask create milestone-portfolio "Q1 2022"

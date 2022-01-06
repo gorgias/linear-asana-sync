@@ -9,9 +9,9 @@ class Teams(str, Enum):
     APPS_DEVELOPER_RELATIONS = "[APP-DevRel]"
     APPS_ECOMMERCE = "[APP-Ecommerce]"
     AUTOMATIONS = "[AUT-Productivity]"
+    SELF_SERVE = "[AUT-Self Service]"
     CORE = "[PLT-Core]"
     DATA = "[PLT-Data]"
-    SELF_SERVE = "[AUT-Self Service]"
     SRE = "[PLT-SRE & Security]"
 
 
