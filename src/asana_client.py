@@ -49,13 +49,22 @@ class AsanaClient:
         items_in_parent_portfolio = list(self.client.portfolios.get_items_for_portfolio(parent_portfolio))
         current_app.logger.debug(f"items in parent portfolio: {items_in_parent_portfolio}")
         pattern = "\[.*?\]"
-        tribes_name = {re.match(pattern, item["name"]).group(0) for item in items_in_parent_portfolio}
+
+        tribes_name = {}
+        for item in items_in_parent_portfolio:
+            match = re.match(pattern, item["name"])
+            if match:
+                tribes_name[match.group(0)] = item
+
         current_app.logger.debug(f"tribes_name: {tribes_name}")
+
+        asana_tribes_portfolios = []
         for tribe_template in asana_tribes_templates:
             # If portfolio already exists, then continue
             tribe_name = re.match(pattern, tribe_template["name"]).group(0)
             if tribe_name in tribes_name:
                 current_app.logger.debug(f"{tribe_template['name']} already exists")
+                asana_tribes_portfolios.append(tribes_name[tribe_name])
                 continue
 
             new_portfolio_body = {
@@ -76,14 +85,14 @@ class AsanaClient:
                 asana_portfolio["gid"], new_members_payload
             )
 
-            items_in_parent_portfolio.append(asana_portfolio)
+            asana_tribes_portfolios.append(asana_portfolio)
 
             # Add it to the parent portfolio
             current_app.logger.info(f"Adding portfolio {asana_portfolio['name']} to portfolio {parent_portfolio}")
             body = {"item": f"{asana_portfolio['gid']}"}
             self.client.portfolios.add_item_for_portfolio(parent_portfolio, body)
 
-        return items_in_parent_portfolio
+        return asana_tribes_portfolios
 
     def create_squads_portfolios(self, parent_portfolio: str, squads) -> List[AsanaPortfolio]:
         current_app.logger.info(f"creating squads portfolios")
