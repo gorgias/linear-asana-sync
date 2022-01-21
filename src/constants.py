@@ -5,24 +5,23 @@ LINEAR_GRAPHQL_ENDPOINT = "https://api.linear.app/graphql"
 
 @unique
 class Teams(str, Enum):
-    CORE = "[PLT-Core]"
-    DEV_EXP = "[PLT Developer Experience]"
-    DATA = "[PLT-Data]"
-    SERVICES = "[PLT Services]"
-    SRE = "[PLT-SRE]"
+    PLT_CORE = "[PLT-Core]"
+    PLT_DEV_EXP = "[PLT Developer Experience]"
+    PLT_DATA = "[PLT-Data]"
+    PLT_SERVICES = "[PLT Services]"
+    PLT_SRE = "[PLT-SRE]"
 
-    APPS_ECOMMERCE = "[APP-Ecommerce]"
-    APPS_CHANNELS = "[APP-Channels]"
-    APPS_DEVELOPER_RELATIONS = "[APP-DevRel]"
+    APP_CHANNELS = "[APP-Channels]"
+    APP_DEVREL_ECOM = "[APP DevRel + Ecom]"
 
-    AUTOMATIONS = "[AUT-Productivity]"
-    ADOPTION = "[AUT-Adoption]"
-    SELF_SERVE = "[AUT-Self Service]"
+    AUT_ADOPTION = "[AUT-Adoption]"
+    AUT_PRODUCTIVITY = "[AUT-Productivity]"
+    AUT_SELF_SERVE = "[AUT-Self Service]"
 
 
 @unique
 class Tribes(str, Enum):
-    APPS = "[APP]"
+    APP = "[APP]"
     PLATFORM = "[PLT]"
     AUTOMATIONS = "[AUT]"
 
