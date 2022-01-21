@@ -45,6 +45,23 @@ def sync_asana_projects(milestone_name: str):
     asana_milestone_portfolio_gid = current_app.config["LINEAR_MILESTONE_ASANA_PORTFOLIO"][milestone_name]
 
     linear_client = LinearClient()
+    linear_projects = []
+    linear_projects = get_linear_projects(linear_client, milestone_name)
+
+    for tribe, teams in current_app.config["ASANA_TEAMS_PORTFOLIOS"].items():
+        current_app.logger.info(f"Sync tribe {tribe}")
+        for team_name, team_portfolio_gid in teams.items():
+            current_app.logger.info(f"Sync team {team_name}, portfoio id {team_portfolio_gid}")
+            sync_team_portfolio(asana_client, linear_projects, team_name, team_portfolio_gid)
+
+
+def sync_asana_projects_by_template(milestone_name: str):
+    """Create Asana projects from Linear projects using a template"""
+    asana_client = AsanaClient(current_app.config["ASANA_WORKSPACE_ID"])
+    asana_master_portfolio_gid = current_app.config["ASANA_MASTER_PORTFOLIO"]  # contains all quarterly portfolios
+    asana_milestone_portfolio_gid = current_app.config["LINEAR_MILESTONE_ASANA_PORTFOLIO"][milestone_name]
+
+    linear_client = LinearClient()
 
     # Get template portfolio and duplicate it
     asana_template_portfolio = asana_client.client.portfolios.get_portfolio(
@@ -85,6 +102,55 @@ def handle_tribes_portfolios(asana_client, asana_tribes_portfolios, linear_proje
 
         squads_portfolios = asana_client.create_squads_portfolios(tribe_portfolio_gid, corresponding_squads)
         handle_squad_portfolios(asana_client, linear_projects, squads_portfolios)
+
+
+def sync_team_portfolio(asana_client, linear_projects, team_name, portfolio_gid):
+    """Sync a squad/team protfolio"""
+    current_app.logger.info(f"Syncing team portfolio {portfolio_gid}")
+    portolio = asana_client.client.portfolios.get_portfolio(
+        portfolio_gid, opt_fields=["gid", "name", "owner", "members", "custom_fields"]
+    )
+    portfolio_name = portolio["name"]
+
+    current_app.logger.info(f"Syncing team {team_name} portfolio: {portfolio_name}")
+    team_asana_projects = asana_client.projects_in_portfolio_by_custom_field(
+        portfolio_gid,
+        custom_field_gid=current_app.config["ASANA_PROJECTS_CUSTOM_FIELDS"][AsanaCustomFieldLabels.LINEAR_URL],
+    )
+    current_app.logger.debug(
+        "Projects in portfolio %s - %s by linear url %s: %s",
+        portfolio_name,
+        portfolio_gid,
+        current_app.config["ASANA_PROJECTS_CUSTOM_FIELDS"][AsanaCustomFieldLabels.LINEAR_URL],
+        team_asana_projects,
+    )
+
+    team_linear_projects = [
+        project for project in linear_projects if current_app.config["LINEAR_TEAMS"][project["team"]["id"]] == team_name
+    ]
+    current_app.logger.debug(
+        "Linear projects for team %s: %s",
+        team_name,
+        team_linear_projects,
+    )
+    for team_linear_project in team_linear_projects:
+        current_app.logger.info(
+            f"Handling linear project {team_linear_project['name']} - {team_linear_project['slugId']}"
+        )
+        existing_asana_project = None
+        for linear_project_url, asana_project_item in team_asana_projects.items():
+            if team_linear_project["slugId"] in linear_project_url:
+                existing_asana_project = asana_project_item
+                break
+
+        if not existing_asana_project:
+            current_app.logger.info(f"Creating project {team_linear_project['name']}")
+            existing_asana_project = asana_client.create_project(team_linear_project, portfolio_gid)
+        else:
+            current_app.logger.info(f"Project {existing_asana_project['name']} already exists")
+
+        current_app.logger.info(f"Updating project {team_linear_project['name']}")
+        asana_client.update_project(existing_asana_project, team_linear_project)
 
 
 def handle_squad_portfolios(asana_client, linear_projects, squads_portfolios):

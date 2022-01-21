@@ -74,6 +74,11 @@ class AsanaUser(TypedDict):
     email: str
 
 
+class AsanaTeam(TypedDict):
+    gid: str
+    name: str
+
+
 AsanaCustomFields = Dict[str, str]
 
 

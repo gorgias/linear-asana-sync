@@ -6,7 +6,16 @@ from asana.error import ForbiddenError
 from flask import current_app
 
 from src.constants import AsanaCustomFieldLabels, AsanaResourceType
-from src.types import AsanaCustomFields, AsanaPortfolio, AsanaProject, AsanaTask, AsanaUser, LinearIssue, LinearProject
+from src.types import (
+    AsanaCustomFields,
+    AsanaPortfolio,
+    AsanaProject,
+    AsanaTask,
+    AsanaTeam,
+    AsanaUser,
+    LinearIssue,
+    LinearProject,
+)
 
 
 class AsanaClient:
@@ -19,6 +28,11 @@ class AsanaClient:
         current_app.logger.debug(f"fetching users")
         users = self.client.users.get_users({"workspace": self.workspace_id}, opt_fields=["gid", "email"])
         return list(users)
+
+    def teams(self) -> List[AsanaTeam]:
+        current_app.logger.debug(f"fetching teams")
+        teams = self.client.teams.get_teams_for_organization(self.workspace_id, opt_fields=["gid", "name"])
+        return list(teams)
 
     def projects_in_portfolio_by_custom_field(
         self, portfolio_gid: str, custom_field_gid: str
@@ -176,7 +190,7 @@ class AsanaClient:
                 # For some reason portfolios in Asana doesn't display the teams values on projects.
                 # Instead we have to use a custom field for the team
                 current_app.config["ASANA_PROJECTS_CUSTOM_FIELDS"][AsanaCustomFieldLabels.TEAM]: current_app.config[
-                    "ASANA_CUSTOM_FIELD_TEAM_ENUM_VALUES"
+                    "ASANA_CUSTOM_FIELD_TEAM"
                 ][team_name],
             }
         }
