@@ -214,6 +214,7 @@ class AsanaClient:
     def update_project(self, asana_project: AsanaProject, linear_project: LinearProject):
 
         asana_project_update: AsanaProject = {}  # noqa
+        asana_project_update["name"] = linear_project["name"]
 
         followers = set()
         for asana_user in self.asana_users:
