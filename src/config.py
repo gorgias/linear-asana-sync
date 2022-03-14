@@ -9,7 +9,7 @@ ASANA_MASTER_PORTFOLIO = "1201614681408069"  # contains all the quarterly OKR/mi
 
 # https://app.asana.com/0/portfolio/1201150734315686/list
 # Improve support performance to 2.8
-LINEAR_MILESTONE_ASANA_PORTFOLIO = {"Q1 2022": "1201150734315686"}
+LINEAR_MILESTONE_ASANA_PORTFOLIO = {"Q2 2022": "1201956880312451"}
 
 
 ASANA_PORTFOLIO_TEMPLATE_ID = "1201479875410449"
@@ -70,7 +70,7 @@ LINEAR_PERSONAL_TOKEN = os.environ["LINEAR_PERSONAL_TOKEN"]
 # To update the list run: flask info linear-team-ids
 LINEAR_TEAMS = {
     "e2d7941a-2a89-4290-8add-fbf54fe0721d": Teams.PLT_CORE,
-    "03bd385-8541-46e3-8ae4-c6df4ef55363": Teams.PLT_DEV_EXP,
+    "703bd385-8541-46e3-8ae4-c6df4ef55363": Teams.PLT_DEV_EXP,
     "4297897f-2700-4f80-89a2-0ba55ae1bde1": Teams.PLT_DATA,
     "1f36537b-7218-4dee-93bb-440ffe1ed3b2": Teams.PLT_SERVICES,
     "0af154c0-beaf-4cda-abf2-5323d0f9ccac": Teams.PLT_SRE,
@@ -104,4 +104,25 @@ ASANA_TEAMS_PORTFOLIOS = {
         Teams.AUT_PRODUCTIVITY: "1201624076028214",
         Teams.AUT_SELF_SERVE: "1201624076503388",
     },
+}
+
+ASANA_PROJECT_COLOR_RGB_MAP = {
+    "dark-blue": [69, 115, 210],
+    "dark-brown": [248, 223, 114],
+    "dark-green": [93, 162, 131],
+    "dark-orange": [212, 127, 101],
+    "dark-pink": [217, 100, 160],
+    "dark-purple": [127, 119, 208],
+    "dark-red": [216, 96, 95],
+    "dark-teal": [142, 207, 204],
+    "dark-warm-gray": [98, 99, 100],
+    "light-blue": [62, 103, 189],
+    "light-green": [156, 186, 76],
+    "light-orange": [216, 170, 97],
+    "light-pink": [224, 153, 215],
+    "light-purple": [161, 95, 190],
+    "light-red": [226, 136, 138],
+    "light-teal": [70, 182, 176],
+    "light-warm-gray": [98, 99, 100],
+    "light-yellow": [223, 200, 101],
 }

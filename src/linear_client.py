@@ -63,6 +63,7 @@ project(id: "%s") {
   slugId
   name
   description
+  color
   state
   startDate
   startedAt

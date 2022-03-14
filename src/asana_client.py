@@ -2,7 +2,9 @@ import re
 from typing import Dict, List, Optional
 
 import asana
+import numpy as np
 from asana.error import ForbiddenError
+from colour import Color
 from flask import current_app
 
 from src.constants import AsanaCustomFieldLabels, AsanaResourceType
@@ -234,6 +236,9 @@ class AsanaClient:
         if linear_project["targetDate"]:
             asana_project_update["due_on"] = linear_project["targetDate"]
 
+        if linear_project["color"]:
+            asana_project_update["color"] = self._asana_closest_color(linear_project["color"])
+
         current_app.logger.debug(f"updating project {asana_project['name']}: {asana_project_update}")
         self.client.projects.update_project(asana_project["gid"], asana_project_update)
 
@@ -277,6 +282,16 @@ class AsanaClient:
                 current_app.logger.debug(f"task already exists for linear issue {linear_issue['identifier']}")
 
             self._update_task(existing_asana_task, linear_issue, custom_fields)
+
+    def _asana_closest_color(self, color_hexstring):
+        asana_rgb_map = current_app.config["ASANA_PROJECT_COLOR_RGB_MAP"]
+        colors = np.array(list(asana_rgb_map.values()))
+        c = Color(color_hexstring)
+        color = np.array(list(map(lambda x: round(x * 255), c.rgb)))
+        distances = np.sqrt(np.sum((colors - color) ** 2, axis=1))
+        index_of_smallest = np.where(distances == np.amin(distances))
+        smallest_distance = colors[index_of_smallest][0]
+        return next(c for c in asana_rgb_map if all(asana_rgb_map[c]) == all(smallest_distance))
 
     def _create_task(self, asana_project_gid: str, linear_issue: LinearIssue) -> AsanaTask:
         asana_task: AsanaTask = {  # noqa
