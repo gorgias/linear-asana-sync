@@ -327,6 +327,10 @@ class AsanaClient:
 
         # followers
         existing_followers = set(user["gid"] for user in existing_asana_task["followers"])  # noqa
+        # make sure the followers still exist
+        asana_users = set(user["gid"] for user in self.asana_users)
+        existing_followers.intersection_update(asana_users)
+
         if followers != existing_followers:  # we have a change in followers
             followers_to_add = followers - existing_followers
             followers_to_remove = existing_followers - followers
