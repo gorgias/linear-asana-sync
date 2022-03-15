@@ -19,7 +19,8 @@ ASANA_PORTFOLIO_USERS_IDS = [
     "1200243002194193",  # Engineering Bot
     "1183822033025111",  # Thomas Trinelle
     "1197818354683322",  # Felix Enescu
-    "1201660769578072",  # Paul Teyssier
+    "1201660769578072",  # Paul Teyssier,
+    "1201375948074808",  # Anas El Mhamdi
 ]
 
 # To update the list run: flask info asana-team-ids
