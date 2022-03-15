@@ -9,12 +9,13 @@ ASANA_MASTER_PORTFOLIO = "1201614681408069"  # contains all the quarterly OKR/mi
 
 # https://app.asana.com/0/portfolio/1201150734315686/list
 # Improve support performance to 2.8
+# Modify milestone name and portfolio gid after creating it with flask create milestone-portfolio
 LINEAR_MILESTONE_ASANA_PORTFOLIO = {"Q2 2022": "1201956880312451"}
 
 
 ASANA_PORTFOLIO_TEMPLATE_ID = "1201479875410449"
 
-
+# To add any members to the portfolio, add them here and run flask info update-milestone-portfolio-members Q2 2022
 ASANA_PORTFOLIO_USERS_IDS = [
     "1200243002194193",  # Engineering Bot
     "1183822033025111",  # Thomas Trinelle
