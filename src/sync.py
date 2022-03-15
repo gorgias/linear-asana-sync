@@ -240,3 +240,13 @@ def create_milestone_portfolio(milestone_name: str):
     asana_client.client.portfolios.add_item_for_portfolio(asana_master_portfolio_gid, body)
 
     return milestone_portfolio
+
+
+def add_new_users_to_milestone_portfolio(milestone_name: str):
+    asana_client = AsanaClient(current_app.config["ASANA_WORKSPACE_ID"])
+    asana_portfolio_gid = current_app.config["LINEAR_MILESTONE_ASANA_PORTFOLIO"][milestone_name]
+    new_members = {
+        "members": current_app.config["ASANA_PORTFOLIO_USERS_IDS"],
+    }
+    milestone_portfolio = asana_client.client.portfolios.add_members_for_portfolio(asana_portfolio_gid, new_members)
+    return milestone_portfolio

@@ -7,7 +7,12 @@ from flask.cli import AppGroup
 from src.asana_client import AsanaClient
 from src.constants import AsanaCustomFieldLabels
 from src.linear_client import LinearClient
-from src.sync import create_milestone_portfolio, sync_asana_projects, sync_asana_projects_by_template
+from src.sync import (
+    add_new_users_to_milestone_portfolio,
+    create_milestone_portfolio,
+    sync_asana_projects,
+    sync_asana_projects_by_template,
+)
 
 sync_commands = AppGroup("sync", help="Sync commands.")
 create_commands = AppGroup("create", help="Create commands.")
@@ -79,3 +84,11 @@ def linear_team_ids():
     teams = linear_client.teams()
     for team in teams["data"]["teams"]["nodes"]:
         print(f"{team['id']}: {team['name']}")
+
+
+@info_commands.command("update-milestone-portfolio-members")
+@click.argument("milestone_name", default="Q2 2022")
+def update_portfolio_members(milestone_name: str):
+    """Updates milestone porfolio members"""
+    add_new_users_to_milestone_portfolio(milestone_name)
+    print(", ".join(current_app.config["ASANA_PORTFOLIO_USERS_IDS"]), "were added to the", milestone_name, "portfolio")

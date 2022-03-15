@@ -30,9 +30,6 @@ Create milestone portfolio:
 To run the quarterly update:
 
 ```
-flask info asana-team-ids
-flask info asana-custom-team-ids
-flask info linear-team-ids
 flask create milestone-portfolio "Q2 2022"
 flask sync asana-projects "Q2 2022"
 
