@@ -208,6 +208,15 @@ def handle_squad_portfolios(asana_client, linear_projects, squads_portfolios):
             asana_client.update_project(existing_asana_project, squad_linear_project)
 
 
+def delete_milestone_portfolio(milestone_name: str):
+    """Deletes EVERYTHING in a milestone_portfolio (useful for cleanup after testing)"""
+    asana_client = AsanaClient(current_app.config["ASANA_WORKSPACE_ID"])
+    milestone_portfolio = current_app.config["LINEAR_MILESTONE_ASANA_PORTFOLIO"][milestone_name]
+    current_app.logger.info(f"Deleting every portfolio, project and task from {milestone_name}")
+    asana_client.delete_all_portfolio_items(milestone_portfolio)
+    return
+
+
 def create_milestone_portfolio(milestone_name: str):
     """Create Asana portfolio for milestone"""
     asana_client = AsanaClient(current_app.config["ASANA_WORKSPACE_ID"])

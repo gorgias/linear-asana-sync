@@ -10,6 +10,7 @@ from src.linear_client import LinearClient
 from src.sync import (
     add_new_users_to_milestone_portfolio,
     create_milestone_portfolio,
+    delete_milestone_portfolio,
     sync_asana_projects,
     sync_asana_projects_by_template,
 )
@@ -17,6 +18,7 @@ from src.sync import (
 sync_commands = AppGroup("sync", help="Sync commands.")
 create_commands = AppGroup("create", help="Create commands.")
 info_commands = AppGroup("info", help="Fetching info commands.")
+delete_commands = AppGroup("delete", help="Delete commands.")
 
 
 @sync_commands.command("asana-projects")
@@ -92,3 +94,13 @@ def update_portfolio_members(milestone_name: str):
     """Updates milestone porfolio members"""
     add_new_users_to_milestone_portfolio(milestone_name)
     print(", ".join(current_app.config["ASANA_PORTFOLIO_USERS_IDS"]), "were added to the", milestone_name, "portfolio")
+
+
+@delete_commands.command("milestone-portfolio")
+@click.argument("milestone_name", default="Q2 2022")
+def asana_projects_by_template(milestone_name: str):
+    """Create Asana projects from Linear projects"""
+    start_time = datetime.datetime.now()
+    delete_milestone_portfolio(milestone_name)
+    duration = datetime.datetime.now() - start_time
+    current_app.logger.info(f"Finished purging milestone portfolio {milestone_name} in {duration}")

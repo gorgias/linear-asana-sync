@@ -38,11 +38,19 @@ Create the `Q1_2022` Linear milestone portfolio in Asana based on a template por
     flask create milestone-portfolio "Q1 2022"
 ```
 
+When syncing for the first time, use the `asana-projects-by-template` to use the master portfolio template :
+
+```
+    flask sync asana-projects-by-template "Q1 2022"
+```
+
 The template portfolio should be set by changing `ASANA_PORTFOLIO_TEMPLATE_ID` in `config.py`.
 
-Run the sync:
+Run a common sync:
 
+```
     flask sync asana-projects "Q1 2022"
+```
 
 ### Example usage for a quarterly update
 
@@ -50,6 +58,12 @@ Run the sync:
 flask create milestone-portfolio "Q2 2022"
 flask sync asana-projects "Q2 2022"
 
+```
+
+### Cleaning up after testing features locally
+
+```
+flask delete milestone-portfolio "Q2 2022"
 ```
 
 ### Update team ids

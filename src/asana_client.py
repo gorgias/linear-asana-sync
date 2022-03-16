@@ -1,4 +1,5 @@
 import re
+from queue import Queue
 from typing import Dict, List, Optional
 
 import asana
@@ -293,6 +294,31 @@ class AsanaClient:
 
             self._update_task(existing_asana_task, linear_issue, custom_fields)
 
+    def delete_all_portfolio_items(self, portfolio_id: str):
+        q = Queue()
+        all_portfolio_items = self._get_portfolio_items(portfolio_id)
+        # store portfolios in queue
+        for item in all_portfolio_items:
+            if item["resource_type"] == "portfolio":
+                q.put(item)
+        # get nested portfolios and projects
+        while not q.empty():
+            portfolio = q.get()
+            portfolio_items = self._get_portfolio_items(portfolio["gid"])
+            all_portfolio_items.extend(portfolio_items)
+            for item in portfolio_items:
+                if item["resource_type"] == "portfolio":
+                    q.put(item)
+        # delete everything
+        for item in all_portfolio_items:
+            if item["resource_type"] == "portfolio":
+                self._delete_portfolio(item["gid"])
+            if item["resource_type"] == "project":
+                self._delete_project(item["gid"])
+        # finally delete the empty shell
+        self._delete_portfolio(portfolio_id)
+        return
+
     def _create_task(self, asana_project_gid: str, linear_issue: LinearIssue) -> AsanaTask:
         asana_task: AsanaTask = {  # noqa
             "assignee": None,
@@ -305,6 +331,15 @@ class AsanaClient:
         }
         current_app.logger.debug(f"creating task")
         return self.client.tasks.create_task(asana_task)
+
+    def _delete_portfolio(self, portfolio_id: str):
+        return self.client.portfolios.delete_portfolio(portfolio_id)
+
+    def _delete_project(self, project_id: str):
+        return self.client.projects.delete_project(project_id)
+
+    def _get_portfolio_items(self, portfolio_id: str):
+        return list(self.client.portfolios.get_items_for_portfolio(portfolio_id))
 
     def _closest_asana_color(self, hexstring: str):
         asana_color_map = current_app.config["ASANA_PROJECT_COLOR_RGB_MAP"]
