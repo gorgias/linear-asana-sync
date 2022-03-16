@@ -2,9 +2,7 @@ import re
 from typing import Dict, List, Optional
 
 import asana
-import numpy as np
 from asana.error import ForbiddenError
-from colour import Color
 from flask import current_app
 
 from src.constants import AsanaCustomFieldLabels, AsanaResourceType
@@ -63,6 +61,7 @@ class AsanaClient:
     def create_tribes_portfolios(self, parent_portfolio: str, asana_tribes_templates) -> List[AsanaPortfolio]:
         current_app.logger.info(f"creating tribes portfolios from templates")
         current_app.logger.debug(f"items in asana_tribes_templates: {asana_tribes_templates}")
+        current_app.logger.debug(f"parent portfolio id: {parent_portfolio}")
 
         items_in_parent_portfolio = list(self.client.portfolios.get_items_for_portfolio(parent_portfolio))
         current_app.logger.debug(f"items in parent portfolio: {items_in_parent_portfolio}")
@@ -88,6 +87,7 @@ class AsanaClient:
             new_portfolio_body = {
                 "workspace": current_app.config["ASANA_WORKSPACE_ID"],
                 "name": f"{tribe_template['name']}",
+                "color": tribe_template["color"],
             }
 
             # Create a portfolio per tribe
@@ -114,18 +114,24 @@ class AsanaClient:
 
     def create_squads_portfolios(self, parent_portfolio: str, squads) -> List[AsanaPortfolio]:
         current_app.logger.info(f"creating squads portfolios")
-        items_in_parent_portfolio = list(self.client.portfolios.get_items_for_portfolio(parent_portfolio))
+        items_in_parent_portfolio = list(
+            self.client.portfolios.get_items_for_portfolio(
+                parent_portfolio, opt_fields=["name", "owner", "members", "color"]
+            )
+        )
         current_app.logger.debug(f"items in parent portfolio: {items_in_parent_portfolio}")
         squads_name = [item["name"] for item in items_in_parent_portfolio]
+        squad_values = [{k: item[k] for k in ["name", "color"]} for item in items_in_parent_portfolio]
 
         for squad in squads:
-            if squad.value in squads_name:
+            if squad.value in [squad["name"] for squad in squad_values]:
                 current_app.logger.debug(f"{squad.value} already exists")
                 continue
 
             new_portfolio_body = {
                 "workspace": current_app.config["ASANA_WORKSPACE_ID"],
                 "name": f"{squad.value}",
+                "color": next(squad["color"] for squad in squad_values if squad["name"] == squad.value),
             }
 
             # Create a portfolio per squad
@@ -236,9 +242,6 @@ class AsanaClient:
         if linear_project["targetDate"]:
             asana_project_update["due_on"] = linear_project["targetDate"]
 
-        if linear_project["color"]:
-            asana_project_update["color"] = self._asana_closest_color(linear_project["color"])
-
         current_app.logger.debug(f"updating project {asana_project['name']}: {asana_project_update}")
         self.client.projects.update_project(asana_project["gid"], asana_project_update)
 
@@ -282,16 +285,6 @@ class AsanaClient:
                 current_app.logger.debug(f"task already exists for linear issue {linear_issue['identifier']}")
 
             self._update_task(existing_asana_task, linear_issue, custom_fields)
-
-    def _asana_closest_color(self, color_hexstring):
-        asana_rgb_map = current_app.config["ASANA_PROJECT_COLOR_RGB_MAP"]
-        colors = np.array(list(asana_rgb_map.values()))
-        c = Color(color_hexstring)
-        color = np.array(list(map(lambda x: round(x * 255), c.rgb)))
-        distances = np.sqrt(np.sum((colors - color) ** 2, axis=1))
-        index_of_smallest = np.where(distances == np.amin(distances))
-        smallest_distance = colors[index_of_smallest][0]
-        return next(c for c in asana_rgb_map if all(asana_rgb_map[c]) == all(smallest_distance))
 
     def _create_task(self, asana_project_gid: str, linear_issue: LinearIssue) -> AsanaTask:
         asana_task: AsanaTask = {  # noqa

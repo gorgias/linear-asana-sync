@@ -69,7 +69,7 @@ def sync_asana_projects_by_template(milestone_name: str):
     )
     asana_tribes_templates = list(
         asana_client.client.portfolios.get_items_for_portfolio(
-            asana_template_portfolio["gid"], opt_fields=["name", "owner", "members"]
+            asana_template_portfolio["gid"], opt_fields=["name", "owner", "members", "color"]
         )
     )
     asana_tribes_portfolios = asana_client.create_tribes_portfolios(
