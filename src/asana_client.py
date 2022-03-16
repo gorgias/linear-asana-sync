@@ -2,7 +2,9 @@ import re
 from typing import Dict, List, Optional
 
 import asana
+import numpy as np
 from asana.error import ForbiddenError
+from colour import Color
 from flask import current_app
 
 from src.constants import AsanaCustomFieldLabels, AsanaResourceType
@@ -131,8 +133,11 @@ class AsanaClient:
             new_portfolio_body = {
                 "workspace": current_app.config["ASANA_WORKSPACE_ID"],
                 "name": f"{squad.value}",
-                "color": next(squad["color"] for squad in squad_values if squad["name"] == squad.value),
             }
+
+            color = next((squad["color"] for squad in squad_values if squad["name"] == squad.value), None)
+            if color:
+                new_portfolio_body["color"] = color
 
             # Create a portfolio per squad
             current_app.logger.info(f"Creating a portfolio for squad: {squad.value}")
@@ -169,6 +174,7 @@ class AsanaClient:
             "name": linear_project["name"],
             "notes": f"Linear URL: {linear_project_url}\n{linear_project['description']}",
             "team": current_app.config["ASANA_TEAMS"][team_name],
+            "color": self._closest_asana_color(linear_project["color"]),
         }
 
         current_app.logger.debug(f"creating project {asana_project['name']}")
@@ -223,6 +229,7 @@ class AsanaClient:
 
         asana_project_update: AsanaProject = {}  # noqa
         asana_project_update["name"] = linear_project["name"]
+        asana_project_update["color"] = self._closest_asana_color(linear_project["color"])
 
         followers = set()
         for asana_user in self.asana_users:
@@ -298,6 +305,16 @@ class AsanaClient:
         }
         current_app.logger.debug(f"creating task")
         return self.client.tasks.create_task(asana_task)
+
+    def _closest_asana_color(self, hexstring: str):
+        asana_color_map = current_app.config["ASANA_PROJECT_COLOR_RGB_MAP"]
+        colors = np.array(list(asana_color_map.values()))
+        c = Color(hexstring)
+        color = np.array(list(map(lambda x: round(x * 255), c.rgb)))
+        distances = np.sqrt(np.sum((colors - color) ** 2, axis=1))
+        index_of_smallest = np.where(distances == np.amin(distances))
+        smallest_distance = colors[index_of_smallest][0]
+        return next(c for c in asana_color_map if all(asana_color_map[c]) == all(smallest_distance))
 
     def _update_task(
         self,
