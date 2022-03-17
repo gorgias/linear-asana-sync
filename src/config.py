@@ -10,7 +10,7 @@ ASANA_MASTER_PORTFOLIO = "1201614681408069"  # contains all the quarterly OKR/mi
 # https://app.asana.com/0/portfolio/1201150734315686/list
 # Improve support performance to 2.8
 # Modify milestone name and portfolio gid after creating it with flask create milestone-portfolio
-LINEAR_MILESTONE_ASANA_PORTFOLIO = {"Q2 2022": "1201977083596213"}
+LINEAR_MILESTONE_ASANA_PORTFOLIO = {"Q2 2022": "1201986191862785"}
 
 
 ASANA_PORTFOLIO_TEMPLATE_ID = "1201479875410449"
@@ -45,6 +45,21 @@ ASANA_TASKS_CUSTOM_FIELDS = {
 ASANA_PROJECTS_CUSTOM_FIELDS = {
     AsanaCustomFieldLabels.LINEAR_URL: "1200210833927136",
     AsanaCustomFieldLabels.TEAM: "1118518032371299",
+}
+
+ASANA_PORTFOLIO_CUSTOM_FIELDS = {
+    "milestone": {
+        AsanaCustomFieldLabels.VALUE: "1168694676619590",
+        AsanaCustomFieldLabels.GOAL: "1168700089398681",
+        AsanaCustomFieldLabels.TEAM: "1118518032371299",
+    },
+    "tribe": {
+        AsanaCustomFieldLabels.TEAM: "1118518032371299",
+    },
+    "squad": {
+        AsanaCustomFieldLabels.LINEAR_URL: "1200210833927136",
+        AsanaCustomFieldLabels.TEAM: "1118518032371299",
+    },
 }
 
 # To update the list run: flask info asana-custom-team-ids
@@ -127,4 +142,30 @@ ASANA_PROJECT_COLOR_RGB_MAP = {
     "light-teal": [70, 182, 176],
     "light-warm-gray": [98, 99, 100],
     "light-yellow": [223, 200, 101],
+}
+
+LINEAR_ICONS_TO_ASANA = {
+    "Project": "board",
+    "Clock": "timeline",
+    "Compass": "map",
+    "Calendar": "calendar",
+    "Page": "list",
+    "Robot": "Computer",
+    "Chat": "chat_bubbles",
+    "LightBulb": "light_bulb",
+    "Computer": "computer",
+    "Megaphone": "megaphone",
+    "Basket": "shopping_basket",
+    "Briefcase": "briefcase",
+    "Bank": "coins",
+    "Dollar": "coins",
+    "Euro": "coins",
+    "Bitcoin": "coins",
+    "Etherum": "coins",
+    "Cart": "shopping_basket",
+    "Shop": "shopping_basket",
+    "Rocket": "rocket",
+    "Mountain": "mountain_flag",
+    "Bug": "bug",
+    "Users": "people",
 }

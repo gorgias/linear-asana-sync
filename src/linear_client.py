@@ -64,6 +64,7 @@ project(id: "%s") {
   name
   description
   color
+  icon
   state
   startDate
   startedAt

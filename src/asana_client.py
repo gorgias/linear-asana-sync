@@ -108,6 +108,10 @@ class AsanaClient:
 
             asana_tribes_portfolios.append(asana_portfolio)
 
+            # Add custom fields to the tribe portfolios
+            custom_fields = current_app.config["ASANA_PORTFOLIO_CUSTOM_FIELDS"]["tribe"]
+            self.add_custom_fields_to_portfolio(asana_portfolio["gid"], custom_fields)
+
             # Add it to the parent portfolio
             current_app.logger.info(f"Adding portfolio {asana_portfolio['name']} to portfolio {parent_portfolio}")
             body = {"item": f"{asana_portfolio['gid']}"}
@@ -118,27 +122,22 @@ class AsanaClient:
     def create_squads_portfolios(self, parent_portfolio: str, squads) -> List[AsanaPortfolio]:
         current_app.logger.info(f"creating squads portfolios")
         items_in_parent_portfolio = list(
-            self.client.portfolios.get_items_for_portfolio(
-                parent_portfolio, opt_fields=["name", "owner", "members", "color"]
-            )
+            self.client.portfolios.get_items_for_portfolio(parent_portfolio, opt_fields=["name", "owner", "members"])
         )
         current_app.logger.debug(f"items in parent portfolio: {items_in_parent_portfolio}")
         squads_name = [item["name"] for item in items_in_parent_portfolio]
-        squad_values = [{k: item[k] for k in ["name", "color"]} for item in items_in_parent_portfolio]
 
         for squad in squads:
-            if squad.value in [squad["name"] for squad in squad_values]:
+            if squad.value in squads_name:
                 current_app.logger.debug(f"{squad.value} already exists")
                 continue
 
+            tribe_color = self.client.portfolios.get_portfolio(parent_portfolio, opt_fields=["color"])["color"]
             new_portfolio_body = {
                 "workspace": current_app.config["ASANA_WORKSPACE_ID"],
                 "name": f"{squad.value}",
+                "color": tribe_color,
             }
-
-            color = next((squad["color"] for squad in squad_values if squad["name"] == squad.value), None)
-            if color:
-                new_portfolio_body["color"] = color
 
             # Create a portfolio per squad
             current_app.logger.info(f"Creating a portfolio for squad: {squad.value}")
@@ -157,11 +156,8 @@ class AsanaClient:
             self.client.portfolios.add_item_for_portfolio(parent_portfolio, body)
 
             # Add custom fields on squad portfolios
-            for custom_field_label, custom_field_id in current_app.config["ASANA_PROJECTS_CUSTOM_FIELDS"].items():
-                current_app.logger.info(f"adding custom field {custom_field_label} to portfolio")
-                self.client.portfolios.add_custom_field_setting_for_portfolio(
-                    asana_portfolio["gid"], {"custom_field": custom_field_id}
-                )
+            custom_fields = current_app.config["ASANA_PORTFOLIO_CUSTOM_FIELDS"]["squad"]
+            self.add_custom_fields_to_portfolio(asana_portfolio["gid"], custom_fields)
 
         return items_in_parent_portfolio
 
@@ -177,6 +173,8 @@ class AsanaClient:
             "team": current_app.config["ASANA_TEAMS"][team_name],
             "color": self._closest_asana_color(linear_project["color"]),
         }
+        if current_app.config["LINEAR_ICONS_TO_ASANA"].get(linear_project["icon"]):
+            asana_project["icon"] = current_app.config["LINEAR_ICONS_TO_ASANA"][linear_project["icon"]]
 
         current_app.logger.debug(f"creating project {asana_project['name']}")
         asana_project = self.client.projects.create_project(asana_project)
@@ -231,6 +229,8 @@ class AsanaClient:
         asana_project_update: AsanaProject = {}  # noqa
         asana_project_update["name"] = linear_project["name"]
         asana_project_update["color"] = self._closest_asana_color(linear_project["color"])
+        if current_app.config["LINEAR_ICONS_TO_ASANA"].get(linear_project["icon"]):
+            asana_project_update["icon"] = current_app.config["LINEAR_ICONS_TO_ASANA"][linear_project["icon"]]
 
         followers = set()
         for asana_user in self.asana_users:
@@ -315,8 +315,17 @@ class AsanaClient:
                 self._delete_portfolio(item["gid"])
             if item["resource_type"] == "project":
                 self._delete_project(item["gid"])
-        # finally delete the empty shell
-        self._delete_portfolio(portfolio_id)
+        # # finally delete the empty shell
+        # self._delete_portfolio(portfolio_id)
+        return
+
+    def add_custom_fields_to_portfolio(self, portfolio_id: str, custom_fields: dict):
+        # Add custom fields on portfolios
+        for custom_field_label, custom_field_id in custom_fields.items():
+            current_app.logger.info(f"adding custom field {custom_field_label} to portfolio")
+            self.client.portfolios.add_custom_field_setting_for_portfolio(
+                portfolio_id, {"custom_field": custom_field_id}
+            )
         return
 
     def _create_task(self, asana_project_gid: str, linear_issue: LinearIssue) -> AsanaTask:
@@ -349,7 +358,7 @@ class AsanaClient:
         distances = np.sqrt(np.sum((colors - color) ** 2, axis=1))
         index_of_smallest = np.where(distances == np.amin(distances))
         smallest_distance = colors[index_of_smallest][0]
-        return next(c for c in asana_color_map if all(asana_color_map[c]) == all(smallest_distance))
+        return next(c for c in asana_color_map if list(asana_color_map[c]) == list(smallest_distance))
 
     def _update_task(
         self,

@@ -69,7 +69,7 @@ def sync_asana_projects_by_template(milestone_name: str):
     )
     asana_tribes_templates = list(
         asana_client.client.portfolios.get_items_for_portfolio(
-            asana_template_portfolio["gid"], opt_fields=["name", "owner", "members", "color"]
+            asana_template_portfolio["gid"], opt_fields=["name", "owner", "members", "color", "custom_fields"]
         )
     )
     asana_tribes_portfolios = asana_client.create_tribes_portfolios(
@@ -108,7 +108,7 @@ def sync_team_portfolio(asana_client, linear_projects, team_name, portfolio_gid)
     """Sync a squad/team protfolio"""
     current_app.logger.info(f"Syncing team portfolio {portfolio_gid}")
     portolio = asana_client.client.portfolios.get_portfolio(
-        portfolio_gid, opt_fields=["gid", "name", "owner", "members", "custom_fields"]
+        portfolio_gid, opt_fields=["gid", "name", "owner", "color", "icon", "members", "custom_fields"]
     )
     portfolio_name = portolio["name"]
 
@@ -242,7 +242,9 @@ def create_milestone_portfolio(milestone_name: str):
     milestone_portfolio = asana_client.client.portfolios.add_members_for_portfolio(
         milestone_portfolio["gid"], new_members
     )
-
+    # Add custom fields
+    custom_fields = current_app.config["ASANA_PORTFOLIO_CUSTOM_FIELDS"]["milestone"]
+    asana_client.add_custom_fields_to_portfolio(milestone_portfolio["gid"], custom_fields)
     # Add it to the master portfolio (the one that contains quarter's okrs)
     current_app.logger.info(f"Adding portfolio {milestone_portfolio['name']} to portfolio {asana_master_portfolio_gid}")
     body = {"item": f"{milestone_portfolio['gid']}"}

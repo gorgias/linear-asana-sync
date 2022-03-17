@@ -31,6 +31,8 @@ class AsanaCustomFieldLabels(str, Enum):
     LINEAR_URL = "Linear URL"
     TEAM = "Team"
     TRIBE = "Tribe"
+    VALUE = "Value"
+    GOAL = "Goal"
 
 
 @unique

@@ -51,6 +51,7 @@ class LinearProject(TypedDict):
     slugId: str
     name: str
     description: str
+    icon: str
     color: str
     state: str
 
@@ -100,7 +101,7 @@ class AsanaProject(TypedDict):
     gid: str
     name: str
     color: str
-    owner: str
+    icon: str
     followers: str
     due_on: Optional[str]
 
