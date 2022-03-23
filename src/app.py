@@ -1,6 +1,6 @@
 from flask import Flask
 
-from src.commands import create_commands, info_commands, sync_commands
+from src.commands import create_commands, delete_commands, info_commands, sync_commands
 from src.views import default_blueprint
 
 
@@ -12,6 +12,7 @@ def create_app() -> Flask:
     flask_app.cli.add_command(sync_commands)
     flask_app.cli.add_command(create_commands)
     flask_app.cli.add_command(info_commands)
+    flask_app.cli.add_command(delete_commands)
     flask_app.register_blueprint(default_blueprint)
 
     return flask_app
