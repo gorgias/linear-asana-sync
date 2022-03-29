@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app
 
-from src.sync import sync_asana_projects
+from src.sync import sync_asana_projects_by_template
 
 default_blueprint = Blueprint("default", __name__)
 
@@ -10,6 +10,6 @@ def linear_projects():
     """Process Linear Projects Webhooks."""
 
     for portfolio_name, _ in current_app.config["LINEAR_MILESTONE_ASANA_PORTFOLIO"].items():
-        sync_asana_projects(portfolio_name)
+        sync_asana_projects_by_template(portfolio_name)
 
     return "Done"
