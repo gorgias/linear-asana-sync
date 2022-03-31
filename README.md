@@ -56,8 +56,15 @@ Run a common sync:
 
 ```
 flask create milestone-portfolio "Q2 2022"
-flask sync asana-projects "Q2 2022"
 
+```
+
+Add the output portfolio `gid` to the `LINEAR_MILESTONE_ASANA_PORTFOLIO` variable in `config.py`.
+
+After that run :
+
+```
+flask sync asana-projects-by-template "Q2 2022"
 ```
 
 ### Cleaning up after testing features locally
