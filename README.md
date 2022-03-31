@@ -56,7 +56,6 @@ Run a common sync:
 
 ```
 flask create milestone-portfolio "Q2 2022"
-
 ```
 
 Add the output portfolio `gid` to the `LINEAR_MILESTONE_ASANA_PORTFOLIO` variable in `config.py`.
