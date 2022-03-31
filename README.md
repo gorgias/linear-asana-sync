@@ -56,7 +56,7 @@ Run a common sync:
 
 ```
 flask create milestone-portfolio "Q2 2022"
-flask sync asana-projects "Q2 2022"
+flask sync asana-projects-by-template "Q2 2022"
 
 ```
 
