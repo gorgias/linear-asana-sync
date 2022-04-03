@@ -74,6 +74,12 @@ flask info asana-squad-portfolio-ids
 
 Add the ids according to the tribe/squad map in the `ASANA_TEAMS_PORTFOLIOS` variable in `config.py`
 
+To sync the projects, you can POST your milestone name to the app:
+
+```
+curl -X POST YOUR_APP_ENDPOINT/linear-asana-sync/ -d '{"milestone_name":"Q2 2022"}'
+```
+
 ### Cleaning up after testing features locally
 
 ```
