@@ -52,7 +52,7 @@ Run a common sync:
     flask sync asana-projects "Q1 2022"
 ```
 
-### Example usage for a quarterly update
+### Usage for a quarterly update
 
 ```
 flask create milestone-portfolio "Q2 2022"

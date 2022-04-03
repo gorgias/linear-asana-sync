@@ -8,7 +8,7 @@ from asana.error import ForbiddenError
 from colour import Color
 from flask import current_app
 
-from src.constants import AsanaCustomFieldLabels, AsanaResourceType
+from src.constants import AsanaCustomFieldLabels, AsanaResourceType, Tribes
 from src.types import (
     AsanaCustomFields,
     AsanaPortfolio,
@@ -327,6 +327,28 @@ class AsanaClient:
                 portfolio_id, {"custom_field": custom_field_id}
             )
         return
+
+    def list_tribes_and_squad_portfolios(self, milestone_name: str):
+        portfolio_milestone_id = current_app.config["LINEAR_MILESTONE_ASANA_PORTFOLIO"][milestone_name]
+        all_tribe_portfolios = list(self.client.portfolios.get_items_for_portfolio(portfolio_milestone_id))
+        tribe_portfolios = {
+            f"{tribe.value}": {"id": next(p["gid"] for p in all_tribe_portfolios if tribe.value in p["name"])}
+            for tribe in Tribes
+        }
+        for tribe in tribe_portfolios:
+            squads_portfolios = [
+                p
+                for p in list(self.client.portfolios.get_items_for_portfolio(tribe_portfolios[tribe]["id"]))
+                if p["resource_type"] == "portfolio"
+            ]
+            for squad in squads_portfolios:
+                tribe_portfolios[tribe][squad["name"]] = squad["gid"]
+            for tribe in tribe_portfolios:
+                current_app.logger.info(f"{tribe} portfolio id: {tribe_portfolios[tribe]['id']}")
+                current_app.logger.info(f"{tribe} squads porfolios are:")
+                for squad in tribe_portfolios[tribe]:
+                    if squad != "id":
+                        current_app.logger.info(f"{squad} porfolio id: {tribe_portfolios[tribe][squad]}")
 
     def _create_task(self, asana_project_gid: str, linear_issue: LinearIssue) -> AsanaTask:
         asana_task: AsanaTask = {  # noqa
