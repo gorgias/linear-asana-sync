@@ -66,6 +66,14 @@ After that run :
 flask sync asana-projects-by-template "Q2 2022"
 ```
 
+Now you can list the this quarters squad portfolio ids:
+
+```
+flask info asana-squad-portfolio-ids
+```
+
+Add the ids according to the tribe/squad map in the `ASANA_TEAMS_PORTFOLIOS` variable in `config.py`
+
 ### Cleaning up after testing features locally
 
 ```

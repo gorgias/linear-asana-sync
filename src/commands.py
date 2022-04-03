@@ -79,9 +79,9 @@ def asana_custom_team_ids(custom_field_id: str):
         print(f"{options['gid']}: {options['name']}")
 
 
-@info_commands.command("asana-sync-portfolio-ids")
+@info_commands.command("asana-squad-portfolio-ids")
 @click.argument("milestone_name", default="Q1 2022")
-def asana_projects_by_template(milestone_name: str):
+def list_tribes_and_squad_portfolios(milestone_name: str):
     """Get the portfolio ids map to put in sync"""
     current_app.logger.info(f"Getting all tribe and squad portfolios ids for {milestone_name} ...")
     asana_client = AsanaClient(current_app.config["ASANA_WORKSPACE_ID"])
