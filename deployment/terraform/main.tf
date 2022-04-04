@@ -65,14 +65,33 @@ resource "google_cloud_scheduler_job" "job" {
     google_cloud_run_service.default
   ]
 
-  name = var.gcp_pubsub_cloud_scheduler_name
-  description = "Triggers a Linear to Asana data sync"
+  name = "${var.gcp_pubsub_cloud_scheduler_name}-Q1-2022"
+  description = "Triggers a Linear to Asana data sync for Q1 2022"
   schedule = "0 * * * *"
   time_zone = "America/New_York"
   attempt_deadline = "1800s"
 
   http_target {
-    http_method = "GET"
+    http_method = "POST"
     uri = "${google_cloud_run_service.default.status[0].url}/linear-asana-sync/"
+    body= base64encode("{\"milestone_name\":\"Q1 2022\"}")
+  }
+}
+
+resource "google_cloud_scheduler_job" "job" {
+  depends_on = [
+    google_cloud_run_service.default
+  ]
+
+  name = "${var.gcp_pubsub_cloud_scheduler_name}-Q2-2022"
+  description = "Triggers a Linear to Asana data sync for Q2 2022"
+  schedule = "15 * * * *"
+  time_zone = "America/New_York"
+  attempt_deadline = "1800s"
+
+  http_target {
+    http_method = "POST"
+    uri = "${google_cloud_run_service.default.status[0].url}/linear-asana-sync/"
+    body= base64encode("{\"milestone_name\":\"Q2 2022\"}")
   }
 }

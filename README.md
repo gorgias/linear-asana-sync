@@ -52,12 +52,32 @@ Run a common sync:
     flask sync asana-projects "Q1 2022"
 ```
 
-### Example usage for a quarterly update
+### Usage for a quarterly update
 
 ```
 flask create milestone-portfolio "Q2 2022"
-flask sync asana-projects "Q2 2022"
+```
 
+Add the output portfolio `gid` to the `LINEAR_MILESTONE_ASANA_PORTFOLIO` variable in `config.py`.
+
+After that run :
+
+```
+flask sync asana-projects-by-template "Q2 2022"
+```
+
+Now you can list the this quarters squad portfolio ids:
+
+```
+flask info asana-squad-portfolio-ids
+```
+
+Add the ids according to the tribe/squad map in the `ASANA_TEAMS_PORTFOLIOS` variable in `config.py`
+
+To sync the projects, you can POST your milestone name to the app:
+
+```
+curl -X POST YOUR_APP_ENDPOINT/linear-asana-sync/ -d '{"milestone_name":"Q2 2022"}'
 ```
 
 ### Cleaning up after testing features locally

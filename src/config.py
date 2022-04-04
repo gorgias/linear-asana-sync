@@ -10,7 +10,7 @@ ASANA_MASTER_PORTFOLIO = "1201614681408069"  # contains all the quarterly OKR/mi
 # https://app.asana.com/0/portfolio/1201150734315686/list
 # Improve support performance to 2.8
 # Modify milestone name and portfolio gid after creating it with flask create milestone-portfolio
-LINEAR_MILESTONE_ASANA_PORTFOLIO = {"Q2 2022": "1201986191862785"}
+LINEAR_MILESTONE_ASANA_PORTFOLIO = {"Q2 2022": "1201986191862785", "Q1 2022": "1201150734315686"}
 
 
 ASANA_PORTFOLIO_TEMPLATE_ID = "1201479875410449"
@@ -105,21 +105,41 @@ ASANA_TRIBES_PORTFOLIOS = {
 }
 
 ASANA_TEAMS_PORTFOLIOS = {
-    Tribes.PLATFORM: {
-        Teams.PLT_CORE: "1201623743216304",
-        Teams.PLT_DATA: "1201623813331521",
-        Teams.PLT_DEV_EXP: "1201625452953632",
-        Teams.PLT_SERVICES: "1201625378714104",
-        Teams.PLT_SRE: "1201625103707973",
+    "Q1 2022": {
+        Tribes.PLATFORM: {
+            Teams.PLT_CORE: "1201623743216304",
+            Teams.PLT_DATA: "1201623813331521",
+            Teams.PLT_DEV_EXP: "1201625452953632",
+            Teams.PLT_SERVICES: "1201625378714104",
+            Teams.PLT_SRE: "1201625103707973",
+        },
+        Tribes.APP: {
+            Teams.APP_CHANNELS: "1201623774631001",
+            Teams.APP_DEVREL_ECOM: "1201623775083302",
+        },
+        Tribes.AUTOMATIONS: {
+            Teams.AUT_ADOPTION: "1201625138623587",
+            Teams.AUT_PRODUCTIVITY: "1201624076028214",
+            Teams.AUT_SELF_SERVE: "1201624076503388",
+        },
     },
-    Tribes.APP: {
-        Teams.APP_CHANNELS: "1201623774631001",
-        Teams.APP_DEVREL_ECOM: "1201623775083302",
-    },
-    Tribes.AUTOMATIONS: {
-        Teams.AUT_ADOPTION: "1201625138623587",
-        Teams.AUT_PRODUCTIVITY: "1201624076028214",
-        Teams.AUT_SELF_SERVE: "1201624076503388",
+    "Q2 2022": {
+        Tribes.PLATFORM: {
+            Teams.PLT_CORE: "1201623743216304",
+            Teams.PLT_DATA: "1201986129076991",
+            Teams.PLT_DEV_EXP: "1201986287155246",
+            Teams.PLT_SERVICES: "1201986131167880",
+            Teams.PLT_SRE: "1201986199230728",
+        },
+        Tribes.APP: {
+            Teams.APP_CHANNELS: "1201986300463218",
+            Teams.APP_DEVREL_ECOM: "1201986341718091",
+        },
+        Tribes.AUTOMATIONS: {
+            Teams.AUT_ADOPTION: "1201986256062177",
+            Teams.AUT_PRODUCTIVITY: "1201986386727810",
+            Teams.AUT_SELF_SERVE: "1201986256224814",
+        },
     },
 }
 

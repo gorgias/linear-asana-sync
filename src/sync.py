@@ -41,14 +41,14 @@ def old_sync_asana_projects(milestone_name: str):
 def sync_asana_projects(milestone_name: str):
     """Create Asana projects from Linear projects"""
     asana_client = AsanaClient(current_app.config["ASANA_WORKSPACE_ID"])
-    asana_master_portfolio_gid = current_app.config["ASANA_MASTER_PORTFOLIO"]  # contains all quarterly portfolios
-    asana_milestone_portfolio_gid = current_app.config["LINEAR_MILESTONE_ASANA_PORTFOLIO"][milestone_name]
 
     linear_client = LinearClient()
     linear_projects = []
     linear_projects = get_linear_projects(linear_client, milestone_name)
 
-    for tribe, teams in current_app.config["ASANA_TEAMS_PORTFOLIOS"].items():
+    milestone_tribe_squad_ids = current_app.config["ASANA_TEAMS_PORTFOLIOS"][milestone_name]
+
+    for tribe, teams in milestone_tribe_squad_ids.items():
         current_app.logger.info(f"Sync tribe {tribe}")
         for team_name, team_portfolio_gid in teams.items():
             current_app.logger.info(f"Sync team {team_name}, portfoio id {team_portfolio_gid}")
