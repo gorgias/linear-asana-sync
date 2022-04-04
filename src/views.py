@@ -14,7 +14,8 @@ def linear_projects():
     if request_body:
         if milestone_name in current_app.config["LINEAR_MILESTONE_ASANA_PORTFOLIO"]:
             sync_asana_projects(milestone_name)
+            return "Done"
         else:
             return f"Milestone name {milestone_name} was not found"
     else:
-        return "Request body not found."
+        return "Request body not found"
