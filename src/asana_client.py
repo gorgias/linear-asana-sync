@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 
 import asana
 import numpy as np
-from asana.error import ForbiddenError
+from asana.error import ForbiddenError, NotFoundError
 from colour import Color
 from flask import current_app
 
@@ -414,23 +414,28 @@ class AsanaClient:
                         followers.add(asana_user["gid"])
 
         current_app.logger.debug(f"updating task {linear_issue['identifier']} - {existing_asana_task['gid']}")
-        self.client.tasks.update_task(existing_asana_task["gid"], asana_task)
+        try:
+            self.client.tasks.update_task(existing_asana_task["gid"], asana_task)
 
-        # followers
-        existing_followers = set(user["gid"] for user in existing_asana_task["followers"])  # noqa
-        # make sure the followers still exist
-        asana_users = set(user["gid"] for user in self.asana_users)
-        existing_followers.intersection_update(asana_users)
+            # followers
+            existing_followers = set(user["gid"] for user in existing_asana_task["followers"])  # noqa
+            # make sure the followers still exist
+            asana_users = set(user["gid"] for user in self.asana_users)
+            existing_followers.intersection_update(asana_users)
 
-        if followers != existing_followers:  # we have a change in followers
-            followers_to_add = followers - existing_followers
-            followers_to_remove = existing_followers - followers
+            if followers != existing_followers:  # we have a change in followers
+                followers_to_add = followers - existing_followers
+                followers_to_remove = existing_followers - followers
 
-            if followers_to_add:
-                self.client.tasks.add_followers_for_task(
-                    existing_asana_task["gid"], {"followers": list(followers_to_add)}
-                )
-            if followers_to_remove:
-                self.client.tasks.remove_follower_for_task(
-                    existing_asana_task["gid"], {"followers": list(followers_to_remove)}
-                )
+                if followers_to_add:
+                    self.client.tasks.add_followers_for_task(
+                        existing_asana_task["gid"], {"followers": list(followers_to_add)}
+                    )
+                if followers_to_remove:
+                    self.client.tasks.remove_follower_for_task(
+                        existing_asana_task["gid"], {"followers": list(followers_to_remove)}
+                    )
+        except NotFoundError:
+            current_app.logger.info(
+                f'Task {existing_asana_task["gid"]} does not exist anymore. It could have been deleted manually.'
+            )
