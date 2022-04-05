@@ -125,7 +125,7 @@ ASANA_TEAMS_PORTFOLIOS = {
     },
     "Q2 2022": {
         Tribes.PLATFORM: {
-            Teams.PLT_CORE: "1201623743216304",
+            Teams.PLT_CORE: "1201986193867812",
             Teams.PLT_DATA: "1201986129076991",
             Teams.PLT_DEV_EXP: "1201986287155246",
             Teams.PLT_SERVICES: "1201986131167880",
