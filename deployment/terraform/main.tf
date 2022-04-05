@@ -11,7 +11,7 @@ resource "google_cloud_run_service" "default" {
   template {
     metadata {
       annotations = {
-        "autoscaling.knative.dev/maxScale" = "1"
+        "autoscaling.knative.dev/maxScale" = "2"
       }
     }
     spec {
@@ -32,7 +32,7 @@ resource "google_cloud_run_service" "default" {
 
   metadata {
     annotations = {
-      "autoscaling.knative.dev/maxScale" = "1"
+      "autoscaling.knative.dev/maxScale" = "2"
       "run.googleapis.com/ingress" = "all"
     }
   }
