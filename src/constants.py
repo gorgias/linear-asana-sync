@@ -17,6 +17,8 @@ class Teams(str, Enum):
     AUT_ADOPTION = "Help Center & Chat:"
     AUT_PRODUCTIVITY = "Productivity:"
     AUT_SELF_SERVE = "Self-Service:"
+    AUT_CHAT = "Chat:"
+    AUT_HELP_CENTER = "Help Center:"
 
 
 @unique
